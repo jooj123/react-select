@@ -916,10 +916,12 @@ const Select = React.createClass({
 	},
 
 	getFocusableOptionIndex (selectedOption) {
-		var options = this._visibleOptions;
+		let { valueKey, multi } = this.props;
+		let options = this._visibleOptions;
 		if (!options.length) return null;
 
 		let focusedOption = this.state.focusedOption || selectedOption;
+		let selected = null;
 		if (focusedOption && !focusedOption.disabled) {
 			const focusedOptionIndex = options.indexOf(focusedOption);
 			if (focusedOptionIndex !== -1) {
@@ -927,10 +929,18 @@ const Select = React.createClass({
 			}
 		}
 
-		for (var i = 0; i < options.length; i++) {
-			if (!options[i].disabled) return i;
+		for (let i = 0; i < options.length; i++) {
+			if (!options[i].disabled && multi) {
+				return i;
+			} else if (!options[i].disabled && !focusedOption) {
+				return i;
+			} else if (!options[i].disabled && options[i][valueKey] === focusedOption[valueKey]) {
+				return i;
+			} else if (!options[i].disabled && !selected) {
+				selected = i;
+			}
 		}
-		return null;
+		return selected;
 	},
 
 	renderOuter (options, valueArray, focusedOption) {
